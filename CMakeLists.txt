@@ -101,7 +101,8 @@ target_sources(
           src/whisper-utils/token-buffer-thread.cpp
           src/translation/language_codes.cpp
           src/translation/translation.cpp
-          src/translation/translation-utils.cpp)
+          src/translation/translation-utils.cpp
+          src/ui/filter-replace-dialog.cpp)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
 

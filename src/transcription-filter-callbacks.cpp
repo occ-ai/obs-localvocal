@@ -172,15 +172,14 @@ void set_text_callback(struct transcription_filter_data *gf,
 	}
 
 	// if suppression is enabled, check if the text is in the suppression list
-	if (!gf->suppress_sentences.empty()) {
-		// split the suppression list by newline into individual sentences
-		std::vector<std::string> suppress_sentences_list =
-			split(gf->suppress_sentences, '\n');
+	if (!gf->filter_words_replace.empty()) {
 		const std::string original_str_copy = str_copy;
 		// check if the text is in the suppression list
-		for (const std::string &suppress_sentence : suppress_sentences_list) {
-			// if suppress_sentence exists within str_copy, remove it (replace with "")
-			str_copy = std::regex_replace(str_copy, std::regex(suppress_sentence), "");
+		for (const auto &filter_words : gf->filter_words_replace) {
+			// if filter exists within str_copy, replace it with the replacement
+			str_copy = std::regex_replace(str_copy,
+						      std::regex(std::get<0>(filter_words)),
+						      std::get<1>(filter_words));
 		}
 		// if the text was modified, log the original and modified text
 		if (original_str_copy != str_copy) {

@@ -75,7 +75,7 @@ struct transcription_filter_data {
 	std::string target_lang;
 	std::string translation_output;
 	bool enable_token_ts_dtw = false;
-	std::string suppress_sentences;
+	std::vector<std::tuple<std::string, std::string>> filter_words_replace;
 	bool fix_utf8 = true;
 	bool enable_audio_chunks_callback = false;
 	bool source_signals_set = false;

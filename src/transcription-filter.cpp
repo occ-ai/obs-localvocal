@@ -29,6 +29,7 @@
 #include "translation/translation-utils.h"
 #include "translation/translation.h"
 #include "translation/translation-includes.h"
+#include "ui/filter-replace-dialog.h"
 
 void set_source_signals(transcription_filter_data *gf, obs_source_t *parent_source)
 {
@@ -190,6 +191,8 @@ void transcription_filter_update(void *data, obs_data_t *s)
 	int new_buffer_num_chars_per_line = (int)obs_data_get_int(s, "buffer_num_chars_per_line");
 	TokenBufferSegmentation new_buffer_output_type =
 		(TokenBufferSegmentation)obs_data_get_int(s, "buffer_output_type");
+	gf->filter_words_replace =
+		deserialize_filter_words_replace(obs_data_get_string(s, "filter_words_replace"));
 
 	if (new_buffered_output) {
 		obs_log(gf->log_level, "buffered_output enable");
@@ -247,7 +250,6 @@ void transcription_filter_update(void *data, obs_data_t *s)
 	gf->translation_ctx.input_tokenization_style =
 		(InputTokenizationStyle)obs_data_get_int(s, "translate_input_tokenization_style");
 	gf->translation_output = obs_data_get_string(s, "translate_output");
-	gf->suppress_sentences = obs_data_get_string(s, "suppress_sentences");
 	std::string new_translate_model_index = obs_data_get_string(s, "translate_model");
 	std::string new_translation_model_path_external =
 		obs_data_get_string(s, "translation_model_path_external");
@@ -554,7 +556,6 @@ void transcription_filter_defaults(obs_data_t *s)
 	obs_data_set_default_string(s, "translate_model", "whisper-based-translation");
 	obs_data_set_default_string(s, "translation_model_path_external", "");
 	obs_data_set_default_int(s, "translate_input_tokenization_style", INPUT_TOKENIZAION_M2M100);
-	obs_data_set_default_string(s, "suppress_sentences", SUPPRESS_SENTENCES_DEFAULT);
 	obs_data_set_default_double(s, "sentence_psum_accept_thresh", 0.4);
 
 	// translation options
@@ -841,7 +842,7 @@ obs_properties_t *transcription_filter_properties(void *data)
 		     {"whisper_params_group", "log_words", "caption_to_stream", "buffer_size_msec",
 		      "overlap_size_msec", "step_by_step_processing", "min_sub_duration",
 		      "process_while_muted", "buffered_output", "vad_enabled", "log_level",
-		      "suppress_sentences", "sentence_psum_accept_thresh", "vad_threshold",
+		      "open_filter_ui", "sentence_psum_accept_thresh", "vad_threshold",
 		      "buffered_output_group"}) {
 			obs_property_set_visible(obs_properties_get(props, prop_name.c_str()),
 						 show_hide);
@@ -902,9 +903,27 @@ obs_properties_t *transcription_filter_properties(void *data)
 	obs_property_list_add_int(list, "INFO", LOG_INFO);
 	obs_property_list_add_int(list, "WARNING", LOG_WARNING);
 
-	// add a text input for sentences to suppress
-	obs_properties_add_text(ppts, "suppress_sentences", MT_("suppress_sentences"),
-				OBS_TEXT_MULTILINE);
+	// add button to open filter and replace UI dialog
+	obs_properties_add_button2(
+		ppts, "open_filter_ui", MT_("open_filter_ui"),
+		[](obs_properties_t *props, obs_property_t *property, void *data_) {
+			UNUSED_PARAMETER(props);
+			UNUSED_PARAMETER(property);
+			struct transcription_filter_data *gf_ =
+				static_cast<struct transcription_filter_data *>(data_);
+			FilterReplaceDialog *filter_replace_dialog = new FilterReplaceDialog(
+				(QWidget *)obs_frontend_get_main_window(), gf_);
+			filter_replace_dialog->exec();
+			// store the filter data on the source settings
+			obs_data_t *settings = obs_source_get_settings(gf_->context);
+			// serialize the filter data
+			const std::string filter_data =
+				serialize_filter_words_replace(gf_->filter_words_replace);
+			obs_data_set_string(settings, "filter_words_replace", filter_data.c_str());
+			obs_data_release(settings);
+			return true;
+		},
+		gf);
 
 	obs_properties_t *whisper_params_group = obs_properties_create();
 	obs_properties_add_group(ppts, "whisper_params_group", MT_("whisper_parameters"),

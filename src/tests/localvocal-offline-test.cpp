@@ -149,7 +149,6 @@ create_context(int sample_rate, int channels, const std::string &whisper_model_p
 	gf->target_lang = "";
 	gf->translation_ctx.add_context = true;
 	gf->translation_output = "";
-	gf->suppress_sentences = "";
 	gf->translate = false;
 	gf->sentence_psum_accept_thresh = 0.4;
 
@@ -251,16 +250,14 @@ void set_text_callback(struct transcription_filter_data *gf,
 		str_copy = remove_leading_trailing_nonalpha(str_copy);
 
 		// if suppression is enabled, check if the text is in the suppression list
-		if (!gf->suppress_sentences.empty()) {
-			// split the suppression list by newline into individual sentences
-			std::vector<std::string> suppress_sentences_list =
-				split(gf->suppress_sentences, '\n');
+		if (!gf->filter_words_replace.empty()) {
 			const std::string original_str_copy = str_copy;
 			// check if the text is in the suppression list
-			for (const std::string &suppress_sentence : suppress_sentences_list) {
-				// if suppress_sentence exists within str_copy, remove it (replace with "")
+			for (const auto &filter : gf->filter_words_replace) {
+				// if filter exists within str_copy, remove it (replace with "")
 				str_copy = std::regex_replace(str_copy,
-							      std::regex(suppress_sentence), "");
+							      std::regex(std::get<0>(filter)),
+							      std::get<1>(filter));
 			}
 			if (original_str_copy != str_copy) {
 				obs_log(LOG_INFO, "Suppression: '%s' -> '%s'",
@@ -377,12 +374,6 @@ int wmain(int argc, wchar_t *argv[])
 				obs_log(LOG_INFO, "Setting fix_utf8 to %s",
 					config["fix_utf8"] ? "true" : "false");
 				gf->fix_utf8 = config["fix_utf8"];
-			}
-			if (config.contains("suppress_sentences")) {
-				obs_log(LOG_INFO, "Setting suppress_sentences to %s",
-					config["suppress_sentences"].get<std::string>().c_str());
-				gf->suppress_sentences =
-					config["suppress_sentences"].get<std::string>();
 			}
 			if (config.contains("enable_audio_chunks_callback")) {
 				obs_log(LOG_INFO, "Setting enable_audio_chunks_callback to %s",

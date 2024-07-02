@@ -172,7 +172,8 @@ void TokenBufferThread::monitor()
 						inputQueue.pop_front();
 					} else {
 						// skip spaces in the beginning of the input queue
-						while (inputQueue.front() == SPACE) {
+						while (!inputQueue.empty() &&
+						       inputQueue.front() == SPACE) {
 							inputQueue.pop_front();
 						}
 						// add one word to the presentation queue
