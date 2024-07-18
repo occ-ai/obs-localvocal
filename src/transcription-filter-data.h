@@ -51,6 +51,7 @@ struct transcription_filter_data {
 
 	/* whisper */
 	std::string whisper_model_path;
+	bool whisper_model_loaded_new;
 	struct whisper_context *whisper_context;
 	whisper_full_params whisper_params;
 
@@ -92,7 +93,6 @@ struct transcription_filter_data {
 	// Output file path to write the subtitles
 	std::string output_file_path;
 	std::string whisper_model_file_currently_loaded;
-	bool whisper_model_loaded_new;
 
 	// Use std for thread and mutex
 	std::thread whisper_thread;
@@ -113,6 +113,13 @@ struct transcription_filter_data {
 	int buffered_output_num_chars = 30;
 	TokenBufferSegmentation buffered_output_output_type =
 		TokenBufferSegmentation::SEGMENTATION_TOKEN;
+
+	// Amazon IVS settings
+	bool ivs_enabled = false;
+	std::string ivs_channel_arn;
+	std::string aws_access_key;
+	std::string aws_secret_key;
+	std::string aws_region;
 
 	// ctor
 	transcription_filter_data() : whisper_buf_mutex(), whisper_ctx_mutex(), wshiper_thread_cv()

@@ -17,6 +17,8 @@
 !README.md
 !/vendor
 !patch_libobs.diff
+!vcpkg.json
+!vcpkg-configuration.json
 
 # Exclude lock files
 *.lock.json

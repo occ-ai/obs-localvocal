@@ -46,8 +46,9 @@ bool advanced_settings_callback(obs_properties_t *props, obs_property_t *propert
 	UNUSED_PARAMETER(property);
 	// If advanced settings is enabled, show the advanced settings group
 	const bool show_hide = obs_data_get_int(settings, "advanced_settings_mode") == 1;
-	for (const std::string &prop_name : {"whisper_params_group", "buffered_output_group",
-					     "log_group", "advanced_group", "file_output_enable"}) {
+	for (const std::string &prop_name :
+	     {"whisper_params_group", "buffered_output_group", "log_group", "advanced_group",
+	      "file_output_enable", "amazon_ivs_group"}) {
 		obs_property_set_visible(obs_properties_get(props, prop_name.c_str()), show_hide);
 	}
 	translation_options_callback(props, NULL, settings);
@@ -457,6 +458,26 @@ void add_general_group_properties(obs_properties_t *ppts)
 	}
 }
 
+void add_amazon_ivs_group_properties(obs_properties_t *ppts)
+{
+	// add group for Amazon IVS settings
+	obs_properties_t *amazon_ivs_group = obs_properties_create();
+	obs_properties_add_group(ppts, "amazon_ivs_group", MT_("amazon_ivs_parameters"),
+				 OBS_GROUP_CHECKABLE, amazon_ivs_group);
+	// add Amazon IVS channel ARN
+	obs_properties_add_text(amazon_ivs_group, "amazon_ivs_channel_arn",
+				MT_("amazon_ivs_channel_arn"), OBS_TEXT_DEFAULT);
+	// add AWS_ACCESS_KEY
+	obs_properties_add_text(amazon_ivs_group, "aws_access_key", MT_("aws_access_key"),
+				OBS_TEXT_DEFAULT);
+	// add AWS_SECRET_KEY
+	obs_properties_add_text(amazon_ivs_group, "aws_secret_key", MT_("aws_secret_key"),
+				OBS_TEXT_PASSWORD);
+	// add region
+	obs_properties_add_text(amazon_ivs_group, "aws_region", MT_("aws_region"),
+				OBS_TEXT_DEFAULT);
+}
+
 obs_properties_t *transcription_filter_properties(void *data)
 {
 	struct transcription_filter_data *gf =
@@ -480,6 +501,7 @@ obs_properties_t *transcription_filter_properties(void *data)
 	add_buffered_output_group_properties(ppts);
 	add_advanced_group_properties(ppts, gf);
 	add_logging_group_properties(ppts);
+	add_amazon_ivs_group_properties(ppts);
 	add_whisper_params_group_properties(ppts);
 
 	// Add a informative text about the plugin

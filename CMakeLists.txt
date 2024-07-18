@@ -55,6 +55,8 @@ include(cmake/BuildCTranslate2.cmake)
 include(cmake/BuildSentencepiece.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ct2 sentencepiece)
 
+include(cmake/FindOpenSSL.cmake)
+
 set(USE_SYSTEM_ONNXRUNTIME
     OFF
     CACHE STRING "Use system ONNX Runtime")
@@ -100,6 +102,7 @@ target_sources(
           src/whisper-utils/whisper-model-utils.cpp
           src/whisper-utils/silero-vad-onnx.cpp
           src/whisper-utils/token-buffer-thread.cpp
+          src/timed-metadata/timed-metadata-utils.cpp
           src/translation/language_codes.cpp
           src/translation/translation.cpp
           src/translation/translation-utils.cpp

@@ -279,6 +279,14 @@ void transcription_filter_update(void *data, obs_data_t *s)
 		}
 	}
 
+	// Amazon IVS settings
+	gf->ivs_enabled = obs_data_get_bool(s, "amazon_ivs_group");
+	gf->ivs_channel_arn = obs_data_get_string(s, "amazon_ivs_channel_arn");
+	gf->aws_access_key = obs_data_get_string(s, "aws_access_key");
+	gf->aws_secret_key = obs_data_get_string(s, "aws_secret_key");
+	gf->aws_region = obs_data_get_string(s, "aws_region");
+
+	// translation settings
 	bool new_translate = obs_data_get_bool(s, "translate");
 	gf->target_lang = obs_data_get_string(s, "translate_target_language");
 	gf->translation_ctx.add_context = obs_data_get_bool(s, "translate_add_context");
@@ -556,14 +564,14 @@ void transcription_filter_defaults(obs_data_t *s)
 {
 	obs_log(LOG_DEBUG, "filter defaults");
 
-	obs_data_set_default_bool(s, "buffered_output", false);
+	obs_data_set_default_bool(s, "buffered_output", true);
 	obs_data_set_default_int(s, "buffer_num_lines", 2);
-	obs_data_set_default_int(s, "buffer_num_chars_per_line", 30);
+	obs_data_set_default_int(s, "buffer_num_chars_per_line", 8);
 	obs_data_set_default_int(s, "buffer_output_type",
-				 (int)TokenBufferSegmentation::SEGMENTATION_TOKEN);
+				 (int)TokenBufferSegmentation::SEGMENTATION_WORD);
 
 	obs_data_set_default_bool(s, "vad_enabled", true);
-	obs_data_set_default_double(s, "vad_threshold", 0.65);
+	obs_data_set_default_double(s, "vad_threshold", 0.95);
 	obs_data_set_default_int(s, "log_level", LOG_DEBUG);
 	obs_data_set_default_bool(s, "log_words", false);
 	obs_data_set_default_bool(s, "caption_to_stream", false);
@@ -584,6 +592,8 @@ void transcription_filter_defaults(obs_data_t *s)
 	obs_data_set_default_string(s, "translation_model_path_external", "");
 	obs_data_set_default_int(s, "translate_input_tokenization_style", INPUT_TOKENIZAION_M2M100);
 	obs_data_set_default_double(s, "sentence_psum_accept_thresh", 0.4);
+	obs_data_set_default_string(s, "filter_words_replace",
+				    serialize_filter_words_replace({{"MBC.*", ""}}).c_str());
 
 	// translation options
 	obs_data_set_default_double(s, "translation_sampling_temperature", 0.1);
@@ -592,6 +602,13 @@ void transcription_filter_defaults(obs_data_t *s)
 	obs_data_set_default_int(s, "translation_max_decoding_length", 65);
 	obs_data_set_default_int(s, "translation_no_repeat_ngram_size", 1);
 	obs_data_set_default_int(s, "translation_max_input_length", 65);
+
+	// Amazon IVS
+	obs_data_set_default_bool(s, "amazon_ivs_group", false);
+	obs_data_set_default_string(s, "amazon_ivs_channel_arn", "");
+	obs_data_set_default_string(s, "aws_access_key", "");
+	obs_data_set_default_string(s, "aws_secret_key", "");
+	obs_data_set_default_string(s, "aws_region", "us-west-2");
 
 	// Whisper parameters
 	obs_data_set_default_int(s, "whisper_sampling_method", WHISPER_SAMPLING_BEAM_SEARCH);

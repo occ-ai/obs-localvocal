@@ -24,11 +24,28 @@ std::string find_file_in_folder_by_name(const std::string &folder_path,
 std::string find_file_in_folder_by_regex_expression(const std::string &folder_path,
 						    const std::string &file_name_regex)
 {
-	for (const auto &entry : std::filesystem::directory_iterator(folder_path)) {
-		if (std::regex_match(entry.path().filename().string(),
-				     std::regex(file_name_regex))) {
-			return entry.path().string();
+	if (!std::filesystem::exists(folder_path)) {
+		obs_log(LOG_ERROR, "Folder does not exist: %s", folder_path.c_str());
+		return "";
+	}
+	if (!std::filesystem::is_directory(folder_path)) {
+		obs_log(LOG_ERROR, "Path is not a folder: %s", folder_path.c_str());
+		return "";
+	}
+	if (file_name_regex.empty()) {
+		obs_log(LOG_ERROR, "Empty file name regex");
+		return "";
+	}
+	try {
+		for (const auto &entry : std::filesystem::directory_iterator(folder_path)) {
+			if (std::regex_match(entry.path().filename().string(),
+					     std::regex(file_name_regex))) {
+				return entry.path().string();
+			}
 		}
+	} catch (const std::exception &e) {
+		obs_log(LOG_ERROR, "Error finding file in folder by regex expression: %s",
+			e.what());
 	}
 	return "";
 }
