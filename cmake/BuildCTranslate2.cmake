@@ -20,11 +20,11 @@ if(APPLE)
 elseif(WIN32)
 
   # check ACCELERATION environment variable
-  if(NOT DEFINED ENV{ACCELERATION})
-    message(FATAL_ERROR "Please set the ACCELERATION environment variable to either `cpu`, `hipblas`, or `cuda`")
+  if(NOT DEFINED ACCELERATION)
+    message(FATAL_ERROR "Please set ACCELERATION to either `cpu`, `hipblas`, or `cuda`")
   endif()
 
-  if($ENV{ACCELERATION} STREQUAL "cpu" OR $ENV{ACCELERATION} STREQUAL "hipblas")
+  if(${ACCELERATION} STREQUAL "cpu" OR ${ACCELERATION} STREQUAL "hipblas")
     FetchContent_Declare(
       ctranslate2_fetch
       URL https://github.com/occ-ai/obs-ai-ctranslate2-dep/releases/download/1.2.0/libctranslate2-windows-4.1.1-Release-cpu.zip

@@ -46,22 +46,20 @@ if(APPLE)
       ${whispercpp_fetch_SOURCE_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}whisper.coreml${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 elseif(WIN32)
-  if(NOT DEFINED ENV{ACCELERATION})
-    message(
-      FATAL_ERROR "The ACCELERATION environment variable is not set. Please set it to either `cpu`, `cuda` or `hipblas`"
-    )
-  endif(NOT DEFINED ENV{ACCELERATION})
+  if(NOT DEFINED ACCELERATION)
+    message(FATAL_ERROR "ACCELERATION is not set. Please set it to either `cpu`, `cuda` or `hipblas`")
+  endif()
 
-  set(ARCH_PREFIX $ENV{ACCELERATION})
+  set(ARCH_PREFIX ${ACCELERATION})
   set(WHISPER_CPP_URL
       "${PREBUILT_WHISPERCPP_URL_BASE}/whispercpp-windows-${ARCH_PREFIX}-${PREBUILT_WHISPERCPP_VERSION}.zip")
-  if($ENV{ACCELERATION} STREQUAL "cpu")
+  if(${ACCELERATION} STREQUAL "cpu")
     set(WHISPER_CPP_HASH "2b1cfa0dd764132c4cde60e112a8e6328d28d158d91a8845080baa3e9d2dcdcd")
     add_compile_definitions("LOCALVOCAL_WITH_CPU")
-  elseif($ENV{ACCELERATION} STREQUAL "cuda")
+  elseif(${ACCELERATION} STREQUAL "cuda")
     set(WHISPER_CPP_HASH "011e813742fddf0911c4a36d2080d7a388cf78738081297088e7d50023e4f9bc")
     add_compile_definitions("LOCALVOCAL_WITH_CUDA")
-  elseif($ENV{ACCELERATION} STREQUAL "hipblas")
+  elseif(${ACCELERATION} STREQUAL "hipblas")
     set(WHISPER_CPP_HASH "f2980d6cd3df9cac464378d26d2c19d827bcac995c8d0398a39230a9be936013")
     add_compile_definitions("LOCALVOCAL_WITH_HIPBLAS")
   else()
@@ -90,7 +88,7 @@ elseif(WIN32)
   set_target_properties(Whispercpp::Whisper PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                                                        ${whispercpp_fetch_SOURCE_DIR}/include)
 
-  if($ENV{ACCELERATION} STREQUAL "cpu")
+  if(${ACCELERATION} STREQUAL "cpu")
     # add openblas to the link line
     add_library(Whispercpp::OpenBLAS STATIC IMPORTED)
     set_target_properties(Whispercpp::OpenBLAS PROPERTIES IMPORTED_LOCATION
@@ -143,7 +141,7 @@ endif()
 add_library(Whispercpp INTERFACE)
 add_dependencies(Whispercpp Whispercpp_Build)
 target_link_libraries(Whispercpp INTERFACE Whispercpp::Whisper)
-if(WIN32 AND "$ENV{ACCELERATION}" STREQUAL "cpu")
+if(WIN32 AND "${ACCELERATION}" STREQUAL "cpu")
   target_link_libraries(Whispercpp INTERFACE Whispercpp::OpenBLAS)
 endif()
 if(APPLE)
