@@ -104,6 +104,7 @@ struct transcription_filter_data {
 	std::mutex whisper_buf_mutex;
 	std::mutex whisper_ctx_mutex;
 	std::condition_variable wshiper_thread_cv;
+	std::optional<std::condition_variable> input_cv;
 
 	// translation context
 	struct translation_context translation_ctx;

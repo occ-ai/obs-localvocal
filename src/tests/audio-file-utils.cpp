@@ -108,7 +108,8 @@ read_audio_file(const char *filename, std::function<void(int, int)> initializati
 					for (int j = 0; j < codecContext->channels; j++) {
 						buffer[j].insert(buffer[j].end(), frame->data[j],
 								 frame->data[j] +
-									 frame->linesize[0]);
+									 frame->nb_samples *
+										 sizeof(float));
 					}
 				}
 			}

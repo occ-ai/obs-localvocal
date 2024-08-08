@@ -20,21 +20,23 @@ $obsDlls = @(
     ".\release\Release\obs-plugins\64bit\onnxruntime_providers_shared.dll",
     ".\release\Release\obs-plugins\64bit\onnxruntime.dll",
     ".\release\Release\obs-plugins\64bit\whisper.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\avcodec-60.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\avdevice-60.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\avfilter-9.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\avformat-60.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\avutil-58.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\libx264-164.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\swresample-4.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\swscale-7.dll",
-    ".deps\obs-deps-2023-11-03-x64\bin\zlib.dll"
-    ".deps\obs-studio-30.0.2\build_x64\rundir\Debug\bin\64bit\obs-frontend-api.dll",
-    ".deps\obs-studio-30.0.2\build_x64\rundir\Debug\bin\64bit\obs.dll",
-    ".deps\obs-studio-30.0.2\build_x64\rundir\Debug\bin\64bit\w32-pthreads.dll"
+    ".\release\Release\obs-plugins\64bit\ggml.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\avcodec-60.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\avdevice-60.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\avfilter-9.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\avformat-60.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\avutil-58.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\libx264-164.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\swresample-4.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\swscale-7.dll",
+    ".deps\obs-deps-2024-03-19-x64\bin\zlib.dll"
+    ".deps\obs-deps-2024-03-19-x64\bin\librist.dll"
+    ".deps\obs-deps-2024-03-19-x64\bin\srt.dll"
+    ".deps\obs-studio-30.1.2\build_x64\rundir\Debug\bin\64bit\obs-frontend-api.dll",
+    ".deps\obs-studio-30.1.2\build_x64\rundir\Debug\bin\64bit\obs.dll",
+    ".deps\obs-studio-30.1.2\build_x64\rundir\Debug\bin\64bit\w32-pthreads.dll"
 )
 
 $obsDlls | ForEach-Object {
     Copy-Item -Force -Path $_ -Destination $testToolPath
 }
-

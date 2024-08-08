@@ -305,11 +305,11 @@ void run_inference_and_callbacks(transcription_filter_data *gf, uint64_t start_o
 	float *pcm32f_data = (float *)bzalloc(pcm32f_size_with_silence * sizeof(float));
 	if (vad_state == VAD_STATE_PARTIAL) {
 		// peek instead of pop, since this is a partial run that keeps the data in the buffer
-		circlebuf_peek_back(&gf->whisper_buffer, pcm32f_data + WHISPER_SAMPLE_RATE / 100,
-				    pcm32f_size * sizeof(float));
+		circlebuf_peek_front(&gf->whisper_buffer, pcm32f_data + WHISPER_SAMPLE_RATE / 100,
+				     pcm32f_size * sizeof(float));
 	} else {
-		circlebuf_pop_back(&gf->whisper_buffer, pcm32f_data + WHISPER_SAMPLE_RATE / 100,
-				   pcm32f_size * sizeof(float));
+		circlebuf_pop_front(&gf->whisper_buffer, pcm32f_data + WHISPER_SAMPLE_RATE / 100,
+				    pcm32f_size * sizeof(float));
 	}
 
 	struct DetectionResultWithText inference_result =
@@ -599,11 +599,16 @@ void whisper_loop(void *data)
 			}
 		}
 
+		if (gf->input_cv.has_value())
+			gf->input_cv->notify_one();
+
 		// Sleep using the condition variable wshiper_thread_cv
 		// This will wake up the thread if there is new data in the input buffer
 		// or if the whisper context is null
 		std::unique_lock<std::mutex> lock(gf->whisper_ctx_mutex);
-		gf->wshiper_thread_cv.wait_for(lock, std::chrono::milliseconds(50));
+		if (gf->input_buffers->size == 0) {
+			gf->wshiper_thread_cv.wait_for(lock, std::chrono::milliseconds(50));
+		}
 	}
 
 	obs_log(gf->log_level, "Exiting whisper thread");
